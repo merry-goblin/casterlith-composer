@@ -9,9 +9,13 @@ use Monolith\Casterlith\Relations\ManyToOne;
 use Monolith\Casterlith\Relations\OneToMany;
 
 use Doctrine\DBAL\Driver\PDOStatement;
+use Doctrine\DBAL\Query\QueryBuilder;
 
 class Builder
 {
+	protected $queryBuilder     = null;
+	protected $connection       = null;
+
 	protected $mapperList      = null;
 	protected $selectionList   = null;
 	protected $jointList       = null;
@@ -22,10 +26,13 @@ class Builder
 	protected $rootAlias       = null;
 
 	/**
-	 * @param  string $customReplacer
+	 * @param  Doctrine\DBAL\Query\QueryBuilder  $queryBuilder
+	 * @param  string                            $customReplacer
 	 */
-	public function __construct($customReplacer)
+	public function __construct(QueryBuilder $queryBuilder, $customReplacer)
 	{
+		$this->queryBuilder     = $queryBuilder;
+		$this->connection       = $this->queryBuilder->getConnection();
 		$this->customReplacer   = $customReplacer;
 		$this->mapperList       = array();
 		$this->jointList        = array();
@@ -377,7 +384,9 @@ class Builder
 
 		$fields = $mapper->getFields();
 		foreach ($fields as $key => $field) {
-			$entity->$key = $row[$replacer.$key];
+			$value = $row[$replacer.$key];
+			$value = $this->connection->convertToPHPValue($value, $field['type']); // cast
+			$entity->$key = $value;
 		}
 
 		$this->selectionList[$alias]->loaded[$primaryValue] = $entity;

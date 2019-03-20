@@ -304,7 +304,7 @@ abstract class AbstractComposer
 	 */
 	protected function reset()
 	{
-		$this->schemaBuilder    = new SchemaBuilder($this->selectionReplacer);
+		$this->schemaBuilder    = new SchemaBuilder($this->queryBuilder, $this->selectionReplacer);
 		$this->yetToSelectList  = array();
 	}
 
