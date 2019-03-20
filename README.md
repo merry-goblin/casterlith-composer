@@ -9,7 +9,7 @@ Casterlith DataMapper ORM
 
 ### Install
 
-php composer require merry-goblin/casterlith:"dev-master"
+- composer require merry-goblin/casterlith:"dev-master"
 
 --------------------------
 
