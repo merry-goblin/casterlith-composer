@@ -330,4 +330,20 @@ abstract class AbstractComposer
 	{
 		return $this->queryBuilder;
 	}
+
+	/**
+	 * @return Doctrine\DBAL\Connection
+	 */
+	public function getDBALConnection()
+	{
+		return $this->queryBuilder->getConnection();
+	}
+
+	/**
+	 * @return PDO
+	 */
+	public function getPDOConnection()
+	{
+		return $this->getDBALConnection()->getWrappedConnection();
+	}
 }

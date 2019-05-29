@@ -60,10 +60,18 @@ class Casterlith
 	}
 
 	/**
-	 * @return Doctrine\DBAL\Query\QueryBuilder
+	 * @return Doctrine\DBAL\Connection
 	 */
 	public function getDBALConnection()
 	{
 		return $this->connection;
+	}
+
+	/**
+	 * @return PDO
+	 */
+	public function getPDOConnection()
+	{
+		return $this->getDBALConnection()->getWrappedConnection();
 	}
 }
