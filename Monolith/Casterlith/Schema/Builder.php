@@ -211,8 +211,10 @@ class Builder
 	 */
 	protected function linkEntitiesWithAManyToOneRelation($fromEntity, $toEntity, $joint)
 	{
-		$property = $joint->property;
-		$fromEntity->$property = $toEntity;
+		if (!is_null($fromEntity)) {
+			$property = $joint->property;
+			$fromEntity->$property = $toEntity;
+		}
 	}
 
 	/**
@@ -223,11 +225,13 @@ class Builder
 	 */
 	protected function linkEntitiesWithAOneToManyRelation($fromEntity, $toEntity, $joint)
 	{
-		$property = $joint->property;
-		if (!is_array($fromEntity->$property)) {
-			$fromEntity->$property = array();
-		}		
-		$fromEntity->{$property}[$toEntity->getPrimaryValue()] = $toEntity;
+		if (!is_null($fromEntity)) {
+			$property = $joint->property;
+			if (!is_array($fromEntity->$property)) {
+				$fromEntity->$property = array();
+			}		
+			$fromEntity->{$property}[$toEntity->getPrimaryValue()] = $toEntity;
+		}
 	}
 
 	/**
