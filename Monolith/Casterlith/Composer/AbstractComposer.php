@@ -314,11 +314,10 @@ abstract class AbstractComposer
 		}
 
 		//	Build a condition to limit the full dbal request
-		$condition = null;
-		if (count($idList) > 0) {
+		if (!empty($idList)) {
 			$condition  = $alias.".".$primaryKey." IN (".$idList.")";
+			$this->queryBuilder->andWhere($condition);
 		}
-		$this->queryBuilder->andWhere($condition);
 
 		return $this;
 	}
