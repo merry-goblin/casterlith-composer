@@ -40,6 +40,8 @@ class Builder
 	}
 
 	/**
+	 * Defines an unique alias to a table
+	 * 
 	 * @param  string $alias
 	 * @return null
 	 */
@@ -122,6 +124,32 @@ class Builder
 	}
 
 	/**
+	 * Because two tables (or two aliases of the same table) can have the same field names
+	 * we change field names in a way those field names will be unique
+	 * If those field names are not unique after all, have a look at the 
+	 * Monolith\Casterlith\Configuration::setSelectionReplacer method
+	 * 
+	 * @param  string $alias
+	 * @return string
+	 */
+	public function getAUniqueSelectionFromRaw($rawSelection)
+	{
+		/*$replacer  = $this->getReplacer($alias);
+		$mapper    = $this->getMapper($alias);
+		$fields    = $mapper::getFields();
+
+		$selection = "";
+		foreach ($fields as $key => $field) {
+			if (!empty($selection)) {
+				$selection .= ",";
+			}
+			$selection .= $alias.".".$key." as ".$replacer.$key;
+		}*/
+
+		return $rawSelection;
+	}
+
+	/**
 	 * This method does no optimization. Optimization is up to the caller
 	 * 
 	 * @param  Doctrine\DBAL\Driver\PDOStatement  $statement
@@ -151,6 +179,34 @@ class Builder
 		$entities = $this->selectionList[$this->rootAlias]->loaded;
 
 		return $entities;
+	}
+
+	/**
+	 * This method does no optimization. Optimization is up to the caller
+	 * 
+	 * @param  Doctrine\DBAL\Driver\PDOStatement  $statement
+	 * @return array()
+	 */
+	public function buildFirstAsRaw(PDOStatement $statement)
+	{
+		$row = $statement->fetchObject();
+
+		return $row;
+	}
+
+	/**
+	 * @param  Doctrine\DBAL\Driver\PDOStatement  $statement
+	 * @return array()
+	 */
+	public function buildAllAsRaw(PDOStatement $statement)
+	{
+		$rows = array();
+
+		while ($row = $statement->fetchObject()) {
+			$rows[] = $row;
+		}
+
+		return $rows;
 	}
 
 	public function getRootAlias()

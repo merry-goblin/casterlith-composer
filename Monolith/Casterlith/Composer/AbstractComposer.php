@@ -7,14 +7,17 @@ use Monolith\Casterlith\Schema\Builder as SchemaBuilder;
 
 abstract class AbstractComposer
 {
-	protected $queryBuilder       = null;
-	protected static $mapperName  = null;
-	protected $mapper             = null;
+	protected $queryBuilder          = null;
+	protected static $mapperName     = null;
+	protected $mapper                = null;
 
-	protected $schemaBuilder      = null;
-	protected $selectionReplacer  = null;
+	protected $schemaBuilder         = null;
+	protected $selectionReplacer     = null;
 
-	protected $yetToSelectList    = null;
+	protected $yetToSelectList       = null;
+	protected $yetToSelectAsRawList  = null;
+
+	protected $isRaw                 = false;
 
 	/**
 	 * @param Doctrine\DBAL\Query\QueryBuilder $queryBuilder
@@ -41,6 +44,7 @@ abstract class AbstractComposer
 	public function select()
 	{
 		$this->reset();
+		$this->isRaw = false;
 
 		//	One or more aliases
 		$args = func_get_args();
@@ -97,6 +101,62 @@ abstract class AbstractComposer
 			$alias = $args[$i];
 			$this->schemaBuilder->select($alias);
 			$this->yetToSelectList[] = $alias;
+		}
+
+		return $this;
+	}
+
+	/**
+	 * @return Monolith\Casterlith\Composer\ComposerInterface
+	 */
+	public function selectAsRaw($rootEntityAlias)
+	{
+		$this->reset();
+		$this->isRaw = true;
+
+		//	Schema builder
+		$this->schemaBuilder->select($rootEntityAlias);
+		$this->schemaBuilder->from($rootEntityAlias, $this->mapper);
+
+		//	Query builder
+		//		From
+		$this->queryBuilder
+			->from($this->mapper->getTable(), $rootEntityAlias);
+
+		//	Any entity to select other than the main one
+		$args = func_get_args();
+		if (count($args) > 1) {
+			array_shift($args);
+			$this->addSelectAsRaw($args);
+		}
+
+		return $this;
+	}
+
+	/**
+	 * One or more aliases to select
+	 *
+	 * @return Monolith\Casterlith\Composer\ComposerInterface
+	 */
+	public function addSelectAsRaw()
+	{
+		//	One or more selections
+		$args = func_get_args();
+		if (count($args) == 0) {
+			throw new \Exception("At least one selection is needed");
+		}
+
+		if (is_array($args[0])) {
+			$args = $args[0];
+		}
+
+		//	Aliases of future joints
+		for ($i=0, $len=count($args); $i<$len; $i++) {
+
+			//	Alias of joint entities to select
+			$selection = $args[$i];
+			//$this->schemaBuilder->select($alias);
+			$this->yetToSelectAsRawList[] = $selection;
 		}
 
 		return $this;
@@ -271,6 +331,41 @@ abstract class AbstractComposer
 	 */
 	public function first()
 	{
+		if ($this->isRaw) {
+			$result = $this->firstRawSelections();
+		}
+		else {
+			$result = $this->firstEntities();
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Initialize statement and return an array of entities
+	 * 
+	 * @return array(Monolith\Casterlith\Entity\EntityInterface)
+	 */
+	public function all()
+	{
+		if ($this->isRaw) {
+			$result = $this->allRawSelections();
+		}
+		else {
+			$result = $this->allEntities();
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Initialize statement and return the first entity
+	 * This method does no optimization. Optimization is up to the caller
+	 * 
+	 * @return Monolith\Casterlith\Entity\EntityInterface
+	 */
+	private function firstEntities()
+	{
 		$this->finishSelection();
 
 		//$sql = $this->queryBuilder->getSQL();
@@ -282,20 +377,43 @@ abstract class AbstractComposer
 	}
 
 	/**
-	 * Initialize statement and return an array of entities
+	 * Initialize statement and return the first entity
+	 * This method does no optimization. Optimization is up to the caller
 	 * 
-	 * @return array(Monolith\Casterlith\Entity\EntityInterface)
+	 * @return Monolith\Casterlith\Entity\EntityInterface
 	 */
-	public function all()
+	private function firstRawSelections()
+	{
+		$this->finishRawSelection();
+
+		//$sql = $this->queryBuilder->getSQL();
+		$statement  = $this->queryBuilder->execute();
+
+		$row = $this->schemaBuilder->buildFirstAsRaw($statement);
+
+		return $row;
+	}
+
+	private function allEntities()
 	{
 		$this->finishSelection();
 
-		//$sql = $this->queryBuilder->getSQL();
 		$statement  = $this->queryBuilder->execute();
 
 		$entities = $this->schemaBuilder->buildAll($statement);
 
 		return $entities;
+	}
+
+	private function allRawSelections()
+	{
+		$this->finishRawSelection();
+
+		$statement  = $this->queryBuilder->execute();
+
+		$rows = $this->schemaBuilder->buildAllAsRaw($statement);
+
+		return $rows;
 	}
 
 	/**
@@ -304,8 +422,9 @@ abstract class AbstractComposer
 	 */
 	protected function reset()
 	{
-		$this->schemaBuilder    = new SchemaBuilder($this->queryBuilder, $this->selectionReplacer);
-		$this->yetToSelectList  = array();
+		$this->schemaBuilder         = new SchemaBuilder($this->queryBuilder, $this->selectionReplacer);
+		$this->yetToSelectList       = array();
+		$this->yetToSelectAsRawList  = array();
 	}
 
 	/**
@@ -316,10 +435,23 @@ abstract class AbstractComposer
 	protected function finishSelection()
 	{
 		foreach ($this->yetToSelectList as $key => $alias) {
-
 			$selection = $this->schemaBuilder->getAUniqueSelection($alias);
 			$this->queryBuilder->addSelect($selection);
 			unset($this->yetToSelectList[$key]);
+		}
+	}
+
+	/**
+	 * Select of other entities than the one related to the current composer
+	 * 
+	 * @return null
+	 */
+	protected function finishRawSelection()
+	{
+		foreach ($this->yetToSelectAsRawList as $key => $rawSelection) {
+			$selection = $this->schemaBuilder->getAUniqueSelectionFromRaw($rawSelection);
+			$this->queryBuilder->addSelect($selection);
+			unset($this->yetToSelectAsRawList[$key]);
 		}
 	}
 
@@ -345,5 +477,13 @@ abstract class AbstractComposer
 	public function getPDOConnection()
 	{
 		return $this->getDBALConnection()->getWrappedConnection();
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getSQL()
+	{
+		return $this->queryBuilder->getSQL();
 	}
 }
