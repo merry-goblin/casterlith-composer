@@ -285,8 +285,10 @@ class Builder
 			$property = $joint->property;
 			if (!is_array($fromEntity->$property)) {
 				$fromEntity->$property = array();
-			}		
-			$fromEntity->{$property}[$toEntity->getPrimaryValue()] = $toEntity;
+			}
+			if (!is_null($toEntity)) {
+				$fromEntity->{$property}[$toEntity->getPrimaryValue()] = $toEntity;
+			}
 		}
 	}
 
