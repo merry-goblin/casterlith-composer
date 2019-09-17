@@ -280,15 +280,14 @@ abstract class AbstractComposer
 	}
 
 	/**
-	 * This method must be called after setParameter's method
-	 * It's not the as we use in SQL. 
+	 * This method must be called instead of the all method. 
 	 * It will limit the elements of the current composer's entity
 	 * instead of the number of rows returned by database.
 	 * To do so, a sql requet is sent based on the current sql request 
 	 * but with only the primary key on the current composer's entity 
 	 * and with distinct function on it.
 	 * 
-	 * @return Monolith\Casterlith\Composer\ComposerInterface
+	 * @return array(Monolith\Casterlith\Entity\EntityInterface)
 	 */
 	public function limit($first, $max = null)
 	{
@@ -319,7 +318,7 @@ abstract class AbstractComposer
 			$this->queryBuilder->andWhere($condition);
 		}
 
-		return $this;
+		return $this->all();
 	}
 
 	/**

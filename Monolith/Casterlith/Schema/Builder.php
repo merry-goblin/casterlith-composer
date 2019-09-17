@@ -251,6 +251,9 @@ class Builder
 		if ($joint->relation instanceof ManyToOne) {
 			$this->linkEntitiesWithAManyToOneRelation($fromEntity, $toEntity, $joint);
 		}
+		elseif ($joint->relation instanceof OneToOne) {
+			$this->linkEntitiesWithAOneToOneRelation($fromEntity, $toEntity, $joint);
+		}
 		elseif ($joint->relation instanceof OneToMany) {
 			$this->linkEntitiesWithAOneToManyRelation($fromEntity, $toEntity, $joint);
 		}
@@ -271,6 +274,17 @@ class Builder
 			$property = $joint->property;
 			$fromEntity->$property = $toEntity;
 		}
+	}
+
+	/**
+	 * @param  string                         $fromEntity
+	 * @param  string                         $toEntity
+	 * @param  Merry\Casterlith\Schema\Joint  $joint
+	 * @return null
+	 */
+	protected function linkEntitiesWithAOneToOneRelation($fromEntity, $toEntity, $joint)
+	{
+		$this->linkEntitiesWithAManyToOneRelation($fromEntity, $toEntity, $joint);
 	}
 
 	/**
