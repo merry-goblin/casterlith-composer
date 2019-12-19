@@ -9,9 +9,15 @@ class Configuration extends \Doctrine\DBAL\Configuration
 	 *
 	 * @param  string $replacer
 	 * @return null
+	 * @throws Exception
 	 */
 	public function setSelectionReplacer($replacer = "cl")
 	{
+		$type = gettype($replacer);
+		if ($type !== "string") {
+			throw new \Exception('In setSelectionReplacer($replacer), $replacer has to be a string, '.$type.' given.');
+		}
+
 		$this->_attributes['replacer'] = $replacer;
 	}
 
