@@ -26,7 +26,7 @@ class Casterlith
 	 */
 	public function __construct(array $params, Configuration $configuration, EventManager $eventManager = null)
 	{
-		$this->connection = DriverManager::getConnection($params, $configuration);
+		$this->connection = DriverManager::getConnection($params, $configuration, $eventManager);
 
 		$this->selectionReplacer = $configuration->getSelectionReplacer();
 
