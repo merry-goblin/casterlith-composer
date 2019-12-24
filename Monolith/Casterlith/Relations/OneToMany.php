@@ -8,6 +8,6 @@ class OneToMany extends AbstractRelation implements RelationInterface
 {
 	public static function getType()
 	{
-		return "ManyToOne";
+		return "OneToMany";
 	}
 }

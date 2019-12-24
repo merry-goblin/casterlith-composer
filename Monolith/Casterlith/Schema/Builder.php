@@ -7,6 +7,7 @@ use Monolith\Casterlith\Entity\EntityInterface;
 use Monolith\Casterlith\Mapper\MapperInterface;
 use Monolith\Casterlith\Relations\ManyToOne;
 use Monolith\Casterlith\Relations\OneToMany;
+use Monolith\Casterlith\Relations\OneToOne;
 
 use Doctrine\DBAL\Driver\PDOStatement;
 use Doctrine\DBAL\Query\QueryBuilder;
