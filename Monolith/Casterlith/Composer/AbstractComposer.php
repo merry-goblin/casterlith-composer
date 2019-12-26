@@ -27,11 +27,15 @@ abstract class AbstractComposer
 		$this->queryBuilder       = $queryBuilder;
 		$this->selectionReplacer  = $selectionReplacer;
 
-		if (is_null($this::$mapperName)) {
-			throw new \Exception("mapperName property have to be inialize in current Composer's class");
+		//	Neither an empty string neither null
+		if (empty($this::$mapperName)) {
+			throw new \Exception("mapperName property has to be initialized in current Composer's class");
 		}
 
 		$this->mapper = new $this::$mapperName();
+		if (!($this->mapper instanceof MapperInterface)) {
+			throw new \Exception("mapperName's class must implement MapperInterface");
+		}
 
 		$this->yetToSelectList = array();
 	}
