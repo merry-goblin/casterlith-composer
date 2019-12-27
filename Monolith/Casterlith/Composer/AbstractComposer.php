@@ -4,6 +4,7 @@ namespace Monolith\Casterlith\Composer;
 
 use Doctrine\DBAL\Query\QueryBuilder;
 use Monolith\Casterlith\Schema\Builder as SchemaBuilder;
+use Monolith\Casterlith\Mapper\MapperInterface;
 
 abstract class AbstractComposer
 {
@@ -27,7 +28,7 @@ abstract class AbstractComposer
 		$this->queryBuilder       = $queryBuilder;
 		$this->selectionReplacer  = $selectionReplacer;
 
-		//	Neither an empty string neither null
+		//	Neither an empty string nor null
 		if (empty($this::$mapperName)) {
 			throw new \Exception("mapperName property has to be initialized in current Composer's class");
 		}
@@ -43,6 +44,12 @@ abstract class AbstractComposer
 	/**
 	 * One or more aliases to select
 	 * First one must be the one related to the composer
+	 *
+	 * @param  string  $rootEntityAlias
+	 * @param  string  $entityAlias2 [optional]
+	 * @param  string  $entityAlias3 [optional]
+	 * ...
+	 * @param  string  $entityAliasN [optional]
 	 * @return Monolith\Casterlith\Composer\ComposerInterface
 	 */
 	public function select()
@@ -58,6 +65,16 @@ abstract class AbstractComposer
 
 		//	Alias of the current composer's entity
 		$rootEntityAlias = $args[0];
+
+		//	Neither empty nor null
+		if (empty($rootEntityAlias)) {
+			throw new \Exception("Alias can't be neither empty nor null.");
+		}
+
+		//	Alias has to be a string
+		if (!is_string($rootEntityAlias)) {
+			throw new \Exception("String expected, ".gettype($rootEntityAlias)." given instead.");
+		}
 
 		//	Schema builder
 		$this->schemaBuilder->select($rootEntityAlias);
@@ -84,6 +101,10 @@ abstract class AbstractComposer
 	/**
 	 * One or more aliases to select
 	 *
+	 * @param  string  $entityAlias1
+	 * @param  string  $entityAlias2 [optional]
+	 * ...
+	 * @param  string  $entityAliasN [optional]
 	 * @return Monolith\Casterlith\Composer\ComposerInterface
 	 */
 	public function addSelect()
@@ -103,6 +124,23 @@ abstract class AbstractComposer
 
 			//	Alias of joint entities to select
 			$alias = $args[$i];
+
+			//	Neither empty nor null
+			if (empty($alias)) {
+				throw new \Exception("Alias can't be neither empty nor null.");
+			}
+
+			//	Alias has to be a string
+			if (!is_string($alias)) {
+				throw new \Exception("String expected, ".gettype($alias)." given instead.");
+			}
+
+			//	Can't add an existing entity alias
+			$rootAlias = $this->schemaBuilder->getRootAlias();
+			if (in_array($alias, $this->yetToSelectList) || $alias == $rootAlias) {
+				throw new \Exception("Entity alias ".$alias." already added.");
+			}
+
 			$this->schemaBuilder->select($alias);
 			$this->yetToSelectList[] = $alias;
 		}
@@ -187,6 +225,17 @@ abstract class AbstractComposer
 	 */
 	public function innerJoin($fromAlias, $toAlias, $relName)
 	{
+		if (empty($fromAlias)) {
+			throw new \Exception("innerJoin : From entity alias can't neither be empty nor null");
+		}
+		if (empty($toAlias)) {
+			throw new \Exception("innerJoin : To entity alias can't neither be empty nor null");
+		}
+
+		if ($fromAlias == $toAlias) {
+			throw new \Exception("innerJoin : From and to entity aliases must have a different names");
+		}
+
 		list($table, $condition) = $this->schemaBuilder->join($fromAlias, $toAlias, $relName);
 
 		$this->queryBuilder
