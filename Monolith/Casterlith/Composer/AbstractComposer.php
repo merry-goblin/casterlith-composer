@@ -81,6 +81,9 @@ abstract class AbstractComposer
 		$this->schemaBuilder->from($rootEntityAlias, $this->mapper);
 
 		//	Query builder
+		//		Reset selection
+		$this->queryBuilder
+			->resetQueryParts();
 		//		Select of root entity
 		$this->queryBuilder
 			//->select($this->mapper->selectAll($rootEntityAlias, $replacer));
@@ -161,6 +164,9 @@ abstract class AbstractComposer
 		$this->schemaBuilder->from($rootEntityAlias, $this->mapper);
 
 		//	Query builder
+		//		Reset selection
+		$this->queryBuilder
+			->resetQueryParts();
 		//		From
 		$this->queryBuilder
 			->from($this->mapper->getTable(), $rootEntityAlias);
