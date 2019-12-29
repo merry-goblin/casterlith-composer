@@ -239,7 +239,7 @@ abstract class AbstractComposer
 		}
 
 		if ($fromAlias == $toAlias) {
-			throw new \Exception("innerJoin : From and to entity aliases must have a different names");
+			throw new \Exception("innerJoin : From and to entity aliases must have different names");
 		}
 
 		list($table, $condition) = $this->schemaBuilder->join($fromAlias, $toAlias, $relName);
@@ -258,6 +258,17 @@ abstract class AbstractComposer
 	 */
 	public function leftJoin($fromAlias, $toAlias, $relName)
 	{
+		if (empty($fromAlias)) {
+			throw new \Exception("leftJoin : From entity alias can't neither be empty nor null");
+		}
+		if (empty($toAlias)) {
+			throw new \Exception("leftJoin : To entity alias can't neither be empty nor null");
+		}
+
+		if ($fromAlias == $toAlias) {
+			throw new \Exception("leftJoin : From and to entity aliases must have different names");
+		}
+
 		list($table, $condition) = $this->schemaBuilder->join($fromAlias, $toAlias, $relName);
 
 		$this->queryBuilder
@@ -392,7 +403,9 @@ abstract class AbstractComposer
 			$result = $this->firstRawSelections();
 		}
 		else {
-			$result = $this->firstEntities();
+			//$result = $this->firstEntities();
+			$resultList = $this->limit(0, 1);
+			$result     = reset($resultList);
 		}
 
 		return $result;

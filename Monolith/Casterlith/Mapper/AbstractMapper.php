@@ -28,7 +28,7 @@ abstract class AbstractMapper
 		}
 
 		if (!isset(static::$relations[$relName])) {
-			throw new \Exception("Relation with name ".$relName." doesn't exist");
+			throw new \Exception("Relation with name ".$relName." doesn't exist for table ".static::$table);
 		}
 
 		return static::$relations[$relName];

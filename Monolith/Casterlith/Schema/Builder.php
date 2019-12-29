@@ -75,6 +75,9 @@ class Builder
 	 */
 	public function join($fromAlias, $toAlias, $relationKey)
 	{
+		if (!isset($this->mapperList[$fromAlias])) {
+			throw new \Exception("Entity alias with name ".$fromAlias." doesn't exist");
+		}
 		$fromMapper    = $this->mapperList[$fromAlias];
 		$fromRelation  = $fromMapper->getRelation($relationKey);
 		$toMapper      = $fromRelation->getMapper();
@@ -326,7 +329,7 @@ class Builder
 	protected function getMapper($alias)
 	{
 		if (!isset($this->mapperList[$alias])) {
-			throw new \Exception("This method cannot be called before the alias as been declared with 'from' or 'join' methods of the SchemaBuilder class");
+			throw new \Exception("This method cannot be called before the alias '".$alias."' as been declared with 'from' or 'join' methods of the SchemaBuilder class");
 		}
 
 		return $this->mapperList[$alias];
@@ -339,7 +342,7 @@ class Builder
 	protected function getReplacer($alias)
 	{
 		if (!isset($this->selectionList[$alias])) {
-			throw new \Exception("This method cannot be called before the alias as been declared with 'select' method of the SchemaBuilder class");
+			throw new \Exception("This method cannot be called before the alias '".$alias."' as been declared with 'select' method of the SchemaBuilder class");
 		}
 
 		return $this->selectionList[$alias]->replacer;
