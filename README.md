@@ -5,7 +5,7 @@ Casterlith DataMapper ORM
 
 ### Sample
 
-[Sample & documentation](https://github.com/merry-goblin/casterlith)
+[Sample & documentation & unit tests](https://github.com/merry-goblin/casterlith)
 
 ### Install
 
