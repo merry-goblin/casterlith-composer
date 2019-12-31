@@ -284,6 +284,15 @@ abstract class AbstractComposer
 	public function where($condition)
 	{
 		$this->queryBuilder
+			->resetQueryParts(array(
+				'where',
+				'groupBy',
+				'having',
+				'orderBy',
+				'values',
+			));
+
+		$this->queryBuilder
 			->where($condition);
 
 		return $this;
@@ -316,11 +325,12 @@ abstract class AbstractComposer
 	/**
 	 * @param  string|integer $key
 	 * @param  mixed          $value
+	 * @param  string         $type  [optional]
 	 * @return Monolith\Casterlith\Composer\ComposerInterface
 	 */
-	public function setParameter($key, $value)
+	public function setParameter($key, $value, $type = null)
 	{
-		$this->queryBuilder->setParameter($key, $value);
+		$this->queryBuilder->setParameter($key, $value, $type);
 
 		return $this;
 	}
