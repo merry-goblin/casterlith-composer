@@ -5,6 +5,7 @@ namespace Monolith\Casterlith\Composer;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Monolith\Casterlith\Schema\Builder as SchemaBuilder;
 use Monolith\Casterlith\Mapper\MapperInterface;
+use Monolith\Casterlith\Configuration;
 
 abstract class AbstractComposer
 {
@@ -13,20 +14,26 @@ abstract class AbstractComposer
 	protected $mapper                = null;
 
 	protected $schemaBuilder         = null;
-	protected $selectionReplacer     = null;
 
 	protected $yetToSelectList       = null;
 	protected $yetToSelectAsRawList  = null;
 
 	protected $isRaw                 = false;
 
+	protected $selectionReplacer               = null;
+	protected $firstAutoSelection              = null;
+	protected $exceptionMultipleResultOnFirst  = null;
+
 	/**
 	 * @param Doctrine\DBAL\Query\QueryBuilder $queryBuilder
 	 */
-	public function __construct(QueryBuilder $queryBuilder, $selectionReplacer)
+	public function __construct(QueryBuilder $queryBuilder, Configuration $configuration)
 	{
-		$this->queryBuilder       = $queryBuilder;
-		$this->selectionReplacer  = $selectionReplacer;
+		$this->queryBuilder = $queryBuilder;
+
+		$this->selectionReplacer               = $configuration->getSelectionReplacer();
+		$this->firstAutoSelection              = $configuration->getFirstAutoSelection();
+		$this->exceptionMultipleResultOnFirst  = $configuration->getExceptionMultipleResultOnFirst();
 
 		//	Neither an empty string nor null
 		if (empty($this::$mapperName)) {
@@ -403,8 +410,7 @@ abstract class AbstractComposer
 
 	/**
 	 * Initialize statement and return the first entity
-	 * This method does no optimization. Optimization is up to the caller
-	 * 
+	 *
 	 * @return Monolith\Casterlith\Entity\EntityInterface
 	 */
 	public function first()
@@ -413,9 +419,13 @@ abstract class AbstractComposer
 			$result = $this->firstRawSelections();
 		}
 		else {
-			//$result = $this->firstEntities();
-			$resultList = $this->limit(0, 1);
-			$result     = reset($resultList);
+			if ($this->firstAutoSelection) {
+				$resultList  = $this->limit(0, 1);
+				$result      = reset($resultList);
+			}
+			else {
+				$result  = $this->firstEntities();
+			}
 		}
 
 		return $result;
@@ -448,10 +458,14 @@ abstract class AbstractComposer
 	{
 		$this->finishSelection();
 
-		//$sql = $this->queryBuilder->getSQL();
 		$statement  = $this->queryBuilder->execute();
 
-		$entity = $this->schemaBuilder->buildFirst($statement);
+		try {
+			$entity = $this->schemaBuilder->buildFirst($statement, $this->exceptionMultipleResultOnFirst);
+		}
+		catch (\Exception $e) {
+			throw new \Exception("More than one result on request : ".$this->getSQL());
+		}
 
 		return $entity;
 	}

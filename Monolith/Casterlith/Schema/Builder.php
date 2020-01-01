@@ -157,11 +157,18 @@ class Builder
 	 * This method does no optimization. Optimization is up to the caller
 	 * 
 	 * @param  Doctrine\DBAL\Driver\PDOStatement  $statement
+	 * @param  boolean $exceptionMultipleResultOnFirst
 	 * @return array(Monolith\Casterlith\Entity\EntityInterface)
 	 */
-	public function buildFirst(PDOStatement $statement)
+	public function buildFirst(PDOStatement $statement, $exceptionMultipleResultOnFirst)
 	{
 		$this->build($statement);
+
+		if ($exceptionMultipleResultOnFirst) {
+			if (count($this->selectionList[$this->rootAlias]->loaded) > 1) {
+				throw new \Exception("More than one result");
+			}
+		}
 
 		$entity = null;
 		foreach ($this->selectionList[$this->rootAlias]->loaded as $rootEntity) {

@@ -14,12 +14,12 @@ class Casterlith
 
 	protected $connection = null;
 
-	protected $selectionReplacer = null;
+	protected $configuration = null;
 
 	/**
-	 * @param  array                                             $params         [The database connection parameters]
+	 * @param  array  $params                                     [The database connection parameters]
 	 * @param  Monolith\Casterlith\Configuration  $configuration  [The configuration to use]
-	 * @param  Doctrine\Common\EventManager                      $eventManager   [The event manager to use]
+	 * @param  Doctrine\Common\EventManager  $eventManager        [The event manager to use]
 	 * 
 	 * @return Monolith\Casterlith
 	 * @throws Doctrine\DBAL\DBALException
@@ -28,7 +28,7 @@ class Casterlith
 	{
 		$this->connection = DriverManager::getConnection($params, $configuration, $eventManager);
 
-		$this->selectionReplacer = $configuration->getSelectionReplacer();
+		$this->configuration = $configuration;
 
 		return $this;
 	}
@@ -41,7 +41,7 @@ class Casterlith
 	public function getComposer($className)
 	{
 		$queryBuilder = $this->connection->createQueryBuilder();
-		$composer = new $className($queryBuilder, $this->selectionReplacer);
+		$composer = new $className($queryBuilder, $this->configuration);
 		if (!($composer instanceof ComposerInterface)) {
 			throw new \Exception("className parameter must be a Composer");
 		}

@@ -7,7 +7,7 @@ class Configuration extends \Doctrine\DBAL\Configuration
 	/**
 	 * Set the replacer to use when building aliases in selection
 	 *
-	 * @param  string $replacer
+	 * @param  string  $replacer
 	 * @return null
 	 * @throws Exception
 	 */
@@ -29,6 +29,54 @@ class Configuration extends \Doctrine\DBAL\Configuration
 	public function getSelectionReplacer()
 	{
 		return isset($this->_attributes['replacer']) ? $this->_attributes['replacer'] : "cl";
+	}
+
+	/**
+	 * When 'first' method is called on a composer automatically force only one result
+	 * 2 sql requests will be used to get a result if true but no useless data will be retrieve.
+	 * To prevent the 2 sql requests to be called, set to false and make sure that your request 
+	 * get only one result to ensure good effeciency.
+	 *
+	 * @param  string  $firstAutoSelection
+	 * @return null
+	 */
+	public function setFirstAutoSelection($firstAutoSelection = true)
+	{
+		$this->_attributes['firstAutoSelection'] = $firstAutoSelection;
+	}
+
+	/**
+	 * Get the replacer to use when building aliases in selection
+	 *
+	 * @return string
+	 */
+	public function getFirstAutoSelection()
+	{
+		return isset($this->_attributes['firstAutoSelection']) ? $this->_attributes['firstAutoSelection'] : true;
+	}
+
+	/**
+	 * When firstAutoSelection is false you will get an exception is first send back more 
+	 * than one result. It is better to not use this configuration at true on a production
+	 * environment.
+	 * 
+	 * @param  string  $exceptionMultipleResultOnFirst
+	 * @return null
+	 * @throws Exception
+	 */
+	public function setExceptionMultipleResultOnFirst($exceptionMultipleResultOnFirst = false)
+	{
+		$this->_attributes['exceptionMultipleResultOnFirst'] = $exceptionMultipleResultOnFirst;
+	}
+
+	/**
+	 * Get the replacer to use when building aliases in selection
+	 *
+	 * @return string
+	 */
+	public function getExceptionMultipleResultOnFirst()
+	{
+		return isset($this->_attributes['exceptionMultipleResultOnFirst']) ? $this->_attributes['exceptionMultipleResultOnFirst'] : false;
 	}
 
 }
