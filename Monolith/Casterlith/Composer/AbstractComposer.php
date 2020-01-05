@@ -375,9 +375,17 @@ abstract class AbstractComposer
 	 * and with distinct function on it.
 	 * 
 	 * @return array(Monolith\Casterlith\Entity\EntityInterface)
+	 * @throws Exception
 	 */
 	public function limit($first, $max = null)
 	{
+		if ($first < 0) {
+			throw new \Exception("Offset parameter can't be negative"); 
+		}
+		if ($max <= 0) {
+			throw new \Exception("Limit parameter must be positive");
+		}
+
 		$alias       = $this->schemaBuilder->getRootAlias();
 		$mapperClass = get_class($this->mapper);
 		$primaryKey  = $mapperClass::getPrimaryKey();
