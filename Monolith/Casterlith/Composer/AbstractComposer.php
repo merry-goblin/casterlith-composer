@@ -159,6 +159,8 @@ abstract class AbstractComposer
 	}
 
 	/**
+	 * All values in result will be strings
+	 * 
 	 * @return Monolith\Casterlith\Composer\ComposerInterface
 	 */
 	public function selectAsRaw($rootEntityAlias)
@@ -190,6 +192,7 @@ abstract class AbstractComposer
 
 	/**
 	 * One or more aliases to select
+	 * All values in result will be strings
 	 *
 	 * @return Monolith\Casterlith\Composer\ComposerInterface
 	 */
@@ -330,14 +333,35 @@ abstract class AbstractComposer
 	}
 
 	/**
-	 * @param  string|integer $key
-	 * @param  mixed          $value
-	 * @param  string         $type  [optional]
+	 * @param  string $condition
 	 * @return Monolith\Casterlith\Composer\ComposerInterface
 	 */
-	public function setParameter($key, $value, $type = null)
+	public function groupBy($groupBy)
 	{
-		$this->queryBuilder->setParameter($key, $value, $type);
+		$args = func_get_args();
+		if (count($args) == 0) {
+			throw new \Exception("At least one selection is needed");
+		}
+
+		$this->queryBuilder
+			->groupBy($groupBy);
+
+		return $this;
+	}
+
+	/**
+	 * @param  string $condition
+	 * @return Monolith\Casterlith\Composer\ComposerInterface
+	 */
+	public function addGroupBy($groupBy)
+	{
+		$args = func_get_args();
+		if (count($args) == 0) {
+			throw new \Exception("At least one selection is needed");
+		}
+
+		$this->queryBuilder
+			->addGroupBy($groupBy);
 
 		return $this;
 	}
@@ -350,6 +374,19 @@ abstract class AbstractComposer
 	public function order($sort, $order = null)
 	{
 		$this->queryBuilder->orderBy($sort, $order);
+
+		return $this;
+	}
+
+	/**
+	 * @param  string|integer $key
+	 * @param  mixed          $value
+	 * @param  string         $type  [optional]
+	 * @return Monolith\Casterlith\Composer\ComposerInterface
+	 */
+	public function setParameter($key, $value, $type = null)
+	{
+		$this->queryBuilder->setParameter($key, $value, $type);
 
 		return $this;
 	}
