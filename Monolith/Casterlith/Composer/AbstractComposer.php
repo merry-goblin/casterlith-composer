@@ -333,15 +333,24 @@ abstract class AbstractComposer
 	}
 
 	/**
-	 * @param  string $condition
+	 * Be cautious when using groupBy since some rows won't appear especially in your joins
+	 * This is more suited for 'selectAsRaw' than 'select' method
+	 * 
+	 * @param  string  $groupBy
 	 * @return Monolith\Casterlith\Composer\ComposerInterface
 	 */
 	public function groupBy($groupBy)
 	{
 		$args = func_get_args();
 		if (count($args) == 0) {
-			throw new \Exception("At least one selection is needed");
+			throw new \Exception("At least one groupBy is needed");
 		}
+
+		$this->queryBuilder
+		->resetQueryParts(array(
+			'groupBy',
+			'having',
+		));
 
 		$this->queryBuilder
 			->groupBy($groupBy);
@@ -350,18 +359,74 @@ abstract class AbstractComposer
 	}
 
 	/**
-	 * @param  string $condition
+	 * @param  string  $groupBy
 	 * @return Monolith\Casterlith\Composer\ComposerInterface
 	 */
 	public function addGroupBy($groupBy)
 	{
 		$args = func_get_args();
 		if (count($args) == 0) {
-			throw new \Exception("At least one selection is needed");
+			throw new \Exception("At least one groupBy is needed");
 		}
 
 		$this->queryBuilder
 			->addGroupBy($groupBy);
+
+		return $this;
+	}
+
+	/**
+	 * @param  mixed  $having
+	 * @return Monolith\Casterlith\Composer\ComposerInterface
+	 */
+	public function having($having)
+	{
+		$args = func_get_args();
+		if (count($args) == 0) {
+			throw new \Exception("At least one having is needed");
+		}
+
+		$this->queryBuilder
+		->resetQueryParts(array(
+			'having',
+		));
+
+		$this->queryBuilder
+			->having($having);
+
+		return $this;
+	}
+
+	/**
+	 * @param  mixed  $having
+	 * @return Monolith\Casterlith\Composer\ComposerInterface
+	 */
+	public function andHaving($having)
+	{
+		$args = func_get_args();
+		if (count($args) == 0) {
+			throw new \Exception("At least one having is needed");
+		}
+
+		$this->queryBuilder
+			->andHaving($having);
+
+		return $this;
+	}
+
+	/**
+	 * @param  mixed  $having
+	 * @return Monolith\Casterlith\Composer\ComposerInterface
+	 */
+	public function orHaving($having)
+	{
+		$args = func_get_args();
+		if (count($args) == 0) {
+			throw new \Exception("At least one having is needed");
+		}
+
+		$this->queryBuilder
+			->orHaving($having);
 
 		return $this;
 	}
@@ -419,8 +484,8 @@ abstract class AbstractComposer
 		if ($first < 0) {
 			throw new \Exception("Offset parameter can't be negative"); 
 		}
-		if ($max <= 0) {
-			throw new \Exception("Limit parameter must be positive");
+		if ($max < 0) {
+			throw new \Exception("Limit parameter can't be negative");
 		}
 
 		$alias       = $this->schemaBuilder->getRootAlias();
