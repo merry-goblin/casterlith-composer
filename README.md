@@ -13,7 +13,7 @@ Casterlith DataMapper ORM
 
 ### Version of DBAL
 
-If you want to force compatibility with PHP 5.3 no matter your version of PHP installed replace
+If you want to force compatibility with PHP 5.3 no matter your version of PHP installed replace in composer.json
 
 ```
     "require": {
