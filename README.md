@@ -13,8 +13,23 @@ Casterlith DataMapper ORM
 
 ### Version of DBAL
 
-The current version of dbal used for Casterlith is 2.5 (constraint of PHP 5.3).
-If you want a more recent version I suggest you to fork Casterlith and edit composer.json.
+If you want to force compatibility with PHP 5.3 no matter your version of PHP installed replace
+
+```
+    "require": {
+        "php": ">=5.3.0",
+        //"doctrine/dbal": "^2.5"
+    },
+```
+
+by
+
+```
+    "require": {
+        "php": ">=5.3.0",
+        "doctrine/dbal": "^2.5"
+    },
+```
 
 --------------------------
 
