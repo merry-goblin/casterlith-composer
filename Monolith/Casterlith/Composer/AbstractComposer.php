@@ -660,6 +660,14 @@ abstract class AbstractComposer
 	}
 
 	/**
+	 * @return Monolith\Casterlith\Mapper\AbstractMapper
+	 */
+	public function getMapper()
+	{
+		return $this->mapper;
+	}
+
+	/**
 	 * @return Doctrine\DBAL\Query\QueryBuilder
 	 */
 	public function getQueryBuilder()
