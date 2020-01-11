@@ -17,8 +17,7 @@ If you want to force compatibility with PHP 5.3 no matter your version of PHP in
 
 ```
     "require": {
-        "php": ">=5.3.0",
-        //"doctrine/dbal": "^2.5"
+        "php": ">=5.3.0"
     },
 ```
 
