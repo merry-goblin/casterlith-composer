@@ -12,9 +12,9 @@ class Joint
 	public $relation   = null;
 
 	/**
-	 * @param string                                                          $fromAlias
-	 * @param string                                                          $toAlias
-	 * @param string                                                          $property
+	 * @param string                                           $fromAlias
+	 * @param string                                           $toAlias
+	 * @param string                                           $property
 	 * @param Monolith\Casterlith\Relations\RelationInterface  $relation
 	 */
 	public function __construct($fromAlias, $toAlias, $property, RelationInterface $relation)

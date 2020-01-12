@@ -25,7 +25,8 @@ abstract class AbstractComposer
 	protected $exceptionMultipleResultOnFirst  = null;
 
 	/**
-	 * @param Doctrine\DBAL\Query\QueryBuilder $queryBuilder
+	 * @param Doctrine\DBAL\Query\QueryBuilder   $queryBuilder
+	 * @param Monolith\Casterlith\Configuration  $configuration
 	 */
 	public function __construct(QueryBuilder $queryBuilder, Configuration $configuration)
 	{
@@ -75,7 +76,7 @@ abstract class AbstractComposer
 
 		//	Neither empty nor null
 		if (empty($rootEntityAlias)) {
-			throw new \Exception("Alias can't be neither empty nor null.");
+			throw new \Exception("Alias can't be either empty or null.");
 		}
 
 		//	Alias has to be a string
@@ -137,7 +138,7 @@ abstract class AbstractComposer
 
 			//	Neither empty nor null
 			if (empty($alias)) {
-				throw new \Exception("Alias can't be neither empty nor null.");
+				throw new \Exception("Alias can't be either empty or null.");
 			}
 
 			//	Alias has to be a string
@@ -242,10 +243,10 @@ abstract class AbstractComposer
 	public function innerJoin($fromAlias, $toAlias, $relName)
 	{
 		if (empty($fromAlias)) {
-			throw new \Exception("innerJoin : From entity alias can't neither be empty nor null");
+			throw new \Exception("innerJoin : From entity alias can't either be empty or null");
 		}
 		if (empty($toAlias)) {
-			throw new \Exception("innerJoin : To entity alias can't neither be empty nor null");
+			throw new \Exception("innerJoin : To entity alias can't either be empty or null");
 		}
 
 		if ($fromAlias == $toAlias) {
@@ -269,10 +270,10 @@ abstract class AbstractComposer
 	public function leftJoin($fromAlias, $toAlias, $relName)
 	{
 		if (empty($fromAlias)) {
-			throw new \Exception("leftJoin : From entity alias can't neither be empty nor null");
+			throw new \Exception("leftJoin : From entity alias can't either be empty or null");
 		}
 		if (empty($toAlias)) {
-			throw new \Exception("leftJoin : To entity alias can't neither be empty nor null");
+			throw new \Exception("leftJoin : To entity alias can't either be empty or null");
 		}
 
 		if ($fromAlias == $toAlias) {

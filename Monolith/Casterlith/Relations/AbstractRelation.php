@@ -24,10 +24,10 @@ abstract class AbstractRelation
 	public function getCondition($fromAlias = null, $toAlias = null)
 	{
 		if (empty($fromAlias)) {
-			throw new \Exception("From Alias can't be neither empty nor null");
+			throw new \Exception("From Alias can't be either empty or null");
 		}
 		if (empty($toAlias)) {
-			throw new \Exception("To Alias can't be neither empty nor null");
+			throw new \Exception("To Alias can't be either empty or null");
 		}
 
 		$condition = str_replace("`".$this->fromAlias."`.", "`".$fromAlias."`.", $this->condition);

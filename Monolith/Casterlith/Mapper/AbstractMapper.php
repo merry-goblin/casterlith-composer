@@ -24,7 +24,7 @@ abstract class AbstractMapper
 	public static function getRelation($relName = null)
 	{
 		if (empty($relName)) {
-			throw new \Exception("Relation name can't be neither empty nor null");
+			throw new \Exception("Relation name can't be either empty or null");
 		}
 
 		if (is_null(static::$relations)) {

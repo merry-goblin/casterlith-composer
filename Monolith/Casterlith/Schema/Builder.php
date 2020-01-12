@@ -43,11 +43,18 @@ class Builder
 	/**
 	 * Defines an unique alias to a table
 	 * 
-	 * @param  string $alias
+	 * @param  string  $alias
 	 * @return null
 	 */
-	public function select($alias)
+	public function select($alias = null)
 	{
+		if (empty($alias)) {
+			throw new \Exception("Alias can't be either empty or null");
+		}
+		if (isset($this->selectionList[$alias])) {
+			throw new \Exception("Alias already exists in select method of Monolith\Casterlith\Schema\Builder class");
+		}
+
 		$this->num++;
 		$replacer = $alias.$this->customReplacer.$this->num."_";
 
