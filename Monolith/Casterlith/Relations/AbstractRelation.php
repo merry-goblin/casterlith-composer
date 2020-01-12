@@ -21,8 +21,15 @@ abstract class AbstractRelation
 		$this->reversedBy  = $reversedBy;
 	}
 
-	public function getCondition($fromAlias, $toAlias)
+	public function getCondition($fromAlias = null, $toAlias = null)
 	{
+		if (empty($fromAlias)) {
+			throw new \Exception("From Alias can't be neither empty nor null");
+		}
+		if (empty($toAlias)) {
+			throw new \Exception("To Alias can't be neither empty nor null");
+		}
+
 		$condition = str_replace("`".$this->fromAlias."`.", "`".$fromAlias."`.", $this->condition);
 		$condition = str_replace("`".$this->toAlias."`.", "`".$toAlias."`.", $condition);
 
@@ -37,10 +44,5 @@ abstract class AbstractRelation
 	public function getReversedBy()
 	{
 		return $this->reversedBy;
-	}
-
-	public static function getType()
-	{
-		return "OneToOne";
 	}
 }

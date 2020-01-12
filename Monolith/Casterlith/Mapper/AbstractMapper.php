@@ -21,8 +21,12 @@ abstract class AbstractMapper
 	 * @return Merry\Core\Services\Orm\Casterlith\Relations\RelationInterface
 	 * @throws Exception
 	 */
-	public static function getRelation($relName)
+	public static function getRelation($relName = null)
 	{
+		if (empty($relName)) {
+			throw new \Exception("Relation name can't be neither empty nor null");
+		}
+
 		if (is_null(static::$relations)) {
 			static::getRelations();
 		}
