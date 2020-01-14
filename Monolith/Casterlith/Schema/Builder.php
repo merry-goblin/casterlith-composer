@@ -68,6 +68,9 @@ class Builder
 	 */
 	public function from($alias, MapperInterface $mapper)
 	{
+		if (!empty($this->rootAlias)) {
+			throw new \Exception("This method can't be called twice");
+		}
 		$this->rootAlias = $alias;
 		$this->mapperList[$alias] = $mapper;
 	}
@@ -82,6 +85,15 @@ class Builder
 	 */
 	public function join($fromAlias, $toAlias, $relationKey)
 	{
+		if (empty($fromAlias)) {
+			throw new \Exception("From Alias can't be either empty or null");
+		}
+		if (empty($toAlias)) {
+			throw new \Exception("To Alias can't be either empty or null");
+		}
+		if (empty($relationKey)) {
+			throw new \Exception("Relation key can't be either empty or null");
+		}
 		if (!isset($this->mapperList[$fromAlias])) {
 			throw new \Exception("Entity alias with name ".$fromAlias." doesn't exist");
 		}
