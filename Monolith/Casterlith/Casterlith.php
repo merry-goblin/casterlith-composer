@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * This file is part of Casterlith.
+ *
+ * @link https://github.com/merry-goblin/casterlith
+ */
+
 namespace Monolith\Casterlith;
 
 use Monolith\Casterlith\Composer\ComposerInterface;
@@ -8,12 +14,20 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\DBALException;
 
+/**
+ * Main class of Casterlith ORM DataMapper
+ * 
+ * Provides composers to build queries
+ * The database connection is made with this class
+ */
 class Casterlith
 {
 	const NOT_LOADED = 0;
 
+	/** @var Doctrine\DBAL\DriverManager */
 	protected $connection = null;
 
+	/** @var Monolith\Casterlith\Configuration */
 	protected $configuration = null;
 
 	/**

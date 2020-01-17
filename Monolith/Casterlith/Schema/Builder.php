@@ -179,7 +179,7 @@ class Builder
 	 * @param  boolean $exceptionMultipleResultOnFirst
 	 * @return array(Monolith\Casterlith\Entity\EntityInterface)
 	 */
-	public function buildFirst(PDOStatement $statement, $exceptionMultipleResultOnFirst)
+	public function buildFirst(PDOStatement $statement, $exceptionMultipleResultOnFirst = false)
 	{
 		$this->build($statement);
 
