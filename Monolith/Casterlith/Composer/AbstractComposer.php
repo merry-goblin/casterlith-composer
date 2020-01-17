@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * This file is part of Casterlith.
+ *
+ * @link https://github.com/merry-goblin/casterlith
+ */
+
 namespace Monolith\Casterlith\Composer;
 
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -7,6 +13,30 @@ use Monolith\Casterlith\Schema\Builder as SchemaBuilder;
 use Monolith\Casterlith\Mapper\MapperInterface;
 use Monolith\Casterlith\Configuration;
 
+/**
+ * Abstract class for a Composer
+ * 
+ * Any Composer must extend this class
+ * A composer represent the access to a table with the help of a Mapper
+ * It provides methods to build a query
+ * A query can be based on "select" to get entities or based on "selectAsRaw" to get a simple stdClass without mapping (ex:for doing a count)
+ * 
+ * Example of a query:
+ * $trackComposer  = $orm->getComposer('Acme\Composers\Track');
+ * $qb             = $trackComposer->getQueryBuilder();
+ * 
+ * $tracks = $trackComposer
+ *   ->select("tra", "alb", "art")
+ *   ->join("tra", "alb", "album")
+ *   ->join("alb", "art", "artist")
+ *   ->where($qb->expr()->andX(
+ *     $qb->expr()->like('tra.Name', ':trackName'),
+ *     $qb->expr()->eq('art.Name', ':artistName')
+ *   ))
+ *   ->setParameter('trackName', "%Princess%")
+ *   ->setParameter('artistName', "Accept")
+ *   ->all();
+ */
 abstract class AbstractComposer
 {
 	protected $queryBuilder          = null;
