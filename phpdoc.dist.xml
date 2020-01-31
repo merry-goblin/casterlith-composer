@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<phpdoc>
+  <parser>
+    <target>docs/clean</target>
+  </parser>
+  <transformer>
+    <target>docs/clean</target>
+  </transformer>
+  <transformations>
+    <template name="clean"/>
+  </transformations>
+  <files>
+    <directory>Monolith/*</directory>
+  </files>
+</phpdoc>

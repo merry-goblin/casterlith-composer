@@ -22,6 +22,7 @@ use Monolith\Casterlith\Configuration;
  * A query can be based on "select" to get entities or based on "selectAsRaw" to get a simple stdClass without mapping (ex:for doing a count)
  * 
  * Example of a query:
+ * ```php
  * $trackComposer  = $orm->getComposer('Acme\Composers\Track');
  * $qb             = $trackComposer->getQueryBuilder();
  * 
@@ -36,25 +37,44 @@ use Monolith\Casterlith\Configuration;
  *   ->setParameter('trackName', "%Princess%")
  *   ->setParameter('artistName', "Accept")
  *   ->all();
+ * ```
  */
 abstract class AbstractComposer
 {
-	protected $queryBuilder          = null;
-	protected static $mapperName     = null;
-	protected $mapper                = null;
+	/** @var Doctrine\DBAL\Query\QueryBuilder */
+	protected $queryBuilder = null;
 
-	protected $schemaBuilder         = null;
+	/** @var string */
+	protected static $mapperName = null;
 
-	protected $yetToSelectList       = null;
-	protected $yetToSelectAsRawList  = null;
+	/** @var Monolith\Casterlith\Mapper\MapperInterface */
+	protected $mapper = null;
 
-	protected $isRaw                 = false;
+	/** @var Monolith\Casterlith\Schema\Builder */
+	protected $schemaBuilder = null;
 
-	protected $selectionReplacer               = null;
-	protected $firstAutoSelection              = null;
-	protected $exceptionMultipleResultOnFirst  = null;
+	/** @var string[] */
+	protected $yetToSelectList = null;
+
+	/** @var string[] */
+	protected $yetToSelectAsRawList = null;
+
+	/** @var boolean */
+	protected $isRaw = false;
+
+	/** @var string */
+	protected $selectionReplacer = null;
+
+	/** @var boolean */
+	protected $firstAutoSelection = null;
+
+	/** @var boolean */
+	protected $exceptionMultipleResultOnFirst = null;
 
 	/**
+     * Initializes a new instance of the Composer which extends this abstract class.
+     * Each Composer is related to its own Mapper. AbstractComposer::$mapperName static property must be filled.
+     * 
 	 * @param Doctrine\DBAL\Query\QueryBuilder   $queryBuilder
 	 * @param Monolith\Casterlith\Configuration  $configuration
 	 */
@@ -80,9 +100,11 @@ abstract class AbstractComposer
 	}
 
 	/**
-	 * One or more aliases to select
-	 * First one must be the one related to the composer
-	 *
+	 * One or more aliases to select.
+	 * First one must be the one related to the Composer.
+	 * Any alias added must be present in futur joins before calling first, limit or all except for the first alias which match the current Composer's Mapper.
+	 * Calling this method reset entirely the query.
+	 * 
 	 * @param  string  $rootEntityAlias
 	 * @param  string  $entityAlias2 [optional]
 	 * @param  string  $entityAlias3 [optional]
@@ -141,6 +163,8 @@ abstract class AbstractComposer
 
 	/**
 	 * One or more aliases to select
+	 * Any alias added must be present in futur joins before calling first, limit or all.
+	 * select method must be called before calling addSelect method.
 	 *
 	 * @param  string  $entityAlias1
 	 * @param  string  $entityAlias2 [optional]
@@ -190,7 +214,9 @@ abstract class AbstractComposer
 	}
 
 	/**
-	 * All values in result will be strings
+	 * For custom selection. Will not cast tables in entities.
+	 * All values in result will be strings.
+	 * Calling this method resets entirely the query.
 	 * 
 	 * @return Monolith\Casterlith\Composer\ComposerInterface
 	 */
@@ -222,8 +248,9 @@ abstract class AbstractComposer
 	}
 
 	/**
-	 * One or more aliases to select
-	 * All values in result will be strings
+	 * One or more custom selection.
+	 * All values in result will be strings.
+	 * selectAsRaw method must be called before calling addSelectAsRaw method.
 	 *
 	 * @return Monolith\Casterlith\Composer\ComposerInterface
 	 */
@@ -265,6 +292,9 @@ abstract class AbstractComposer
 	}
 
 	/**
+	 * Create an inner join between two tables.
+	 * The join is a relation with a name ($relName) and a condition which is made in a Mapper.
+	 * 
 	 * @param  string $fromAlias
 	 * @param  string $toAlias
 	 * @param  string $relName
@@ -292,6 +322,9 @@ abstract class AbstractComposer
 	}
 
 	/**
+	 * Create an left join between two tables.
+	 * The join is a relation with a name ($relName) and a condition which is made in a Mapper.
+	 * 
 	 * @param  string $fromAlias
 	 * @param  string $toAlias
 	 * @param  string $relName
@@ -319,6 +352,10 @@ abstract class AbstractComposer
 	}
 
 	/**
+	 * Condition(s) of the query. 
+	 * It is advise to use the expression builder of DBal.
+	 * Calling this method resets some parts of the query (where,groupBy,having,orderBy,values)
+	 * 
 	 * @param  string $condition
 	 * @return Monolith\Casterlith\Composer\ComposerInterface
 	 */
@@ -340,6 +377,9 @@ abstract class AbstractComposer
 	}
 
 	/**
+	 * Add other conditions to the query attached with an intersection. 
+	 * It is advise to use the expression builder of DBal.
+	 * 
 	 * @param  string $condition
 	 * @return Monolith\Casterlith\Composer\ComposerInterface
 	 */
@@ -352,6 +392,9 @@ abstract class AbstractComposer
 	}
 
 	/**
+	 * Add other conditions to the query attached with an union. 
+	 * It is advise to use the expression builder of DBal.
+	 * 
 	 * @param  string $condition
 	 * @return Monolith\Casterlith\Composer\ComposerInterface
 	 */
@@ -366,6 +409,7 @@ abstract class AbstractComposer
 	/**
 	 * Be cautious when using groupBy since some rows won't appear especially in your joins
 	 * This is more suited for 'selectAsRaw' than 'select' method
+	 * Calling this method resets some parts of the query (groupBy,having)
 	 * 
 	 * @param  string  $groupBy
 	 * @return Monolith\Casterlith\Composer\ComposerInterface
@@ -407,6 +451,8 @@ abstract class AbstractComposer
 	}
 
 	/**
+	 * Calling this method resets some parts of the query (having)
+	 *
 	 * @param  mixed  $having
 	 * @return Monolith\Casterlith\Composer\ComposerInterface
 	 */
@@ -463,6 +509,9 @@ abstract class AbstractComposer
 	}
 
 	/**
+	 * Specifies an ordering for the query.
+     * Replaces any previously specified orderings, if any.
+	 * 
 	 * @param  string  $sort
 	 * @param  string  $order
 	 * @return Monolith\Casterlith\Composer\ComposerInterface
@@ -475,6 +524,22 @@ abstract class AbstractComposer
 	}
 
 	/**
+	 * Adds an ordering to the query.
+	 *
+	 * @param  string  $sort
+	 * @param  string  $order
+	 * @return Monolith\Casterlith\Composer\ComposerInterface
+	 */
+	public function addOrder($sort, $order = null)
+	{
+		$this->queryBuilder->addOrderBy($sort, $order);
+
+		return $this;
+	}
+
+	/**
+	 * 
+	 * 
 	 * @param  string|integer $key
 	 * @param  mixed          $value
 	 * @param  string         $type  [optional]
@@ -483,18 +548,6 @@ abstract class AbstractComposer
 	public function setParameter($key, $value, $type = null)
 	{
 		$this->queryBuilder->setParameter($key, $value, $type);
-
-		return $this;
-	}
-
-	/**
-	 * @param  string  $sort
-	 * @param  string  $order
-	 * @return Monolith\Casterlith\Composer\ComposerInterface
-	 */
-	public function addOrder($sort, $order = null)
-	{
-		$this->queryBuilder->addOrderBy($sort, $order);
 
 		return $this;
 	}
