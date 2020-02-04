@@ -16,15 +16,15 @@ use Monolith\Casterlith\Configuration;
 /**
  * Abstract class for a Composer
  * 
- * Any Composer must extend this class
- * A composer represent the access to a table with the help of a Mapper
- * It provides methods to build a query
- * A query can be based on "select" to get entities or based on "selectAsRaw" to get a simple stdClass without mapping (ex:for doing a count)
+ * Any Composer must extend this class.
+ * A composer represent the access to a table with the help of a Mapper.
+ * It provides methods to build a query.
+ * A query can be based on "select" to get entities or based on "selectAsRaw" to get a simple stdClass without mapping (ex:for doing a count).
  * 
  * Example of a query:
  * ```php
  * $trackComposer  = $orm->getComposer('Acme\Composers\Track');
- * $qb             = $trackComposer->getQueryBuilder();
+ * $qb             = $trackComposer->getDBALQueryBuilder();
  * 
  * $tracks = $trackComposer
  *   ->select("tra", "alb", "art")
@@ -72,6 +72,8 @@ abstract class AbstractComposer
 	protected $exceptionMultipleResultOnFirst = null;
 
 	/**
+	 * Constructor
+	 * 
      * Initializes a new instance of the Composer which extends this abstract class.
      * Each Composer is related to its own Mapper. AbstractComposer::$mapperName static property must be filled.
      * 
@@ -100,6 +102,8 @@ abstract class AbstractComposer
 	}
 
 	/**
+	 * 
+	 * 
 	 * One or more aliases to select.
 	 * First one must be the one related to the Composer.
 	 * Any alias added must be present in futur joins before calling first, limit or all except for the first alias which match the current Composer's Mapper.
@@ -754,7 +758,7 @@ abstract class AbstractComposer
 	/**
 	 * @return Doctrine\DBAL\Query\QueryBuilder
 	 */
-	public function getQueryBuilder()
+	public function getDBALQueryBuilder()
 	{
 		return $this->queryBuilder;
 	}

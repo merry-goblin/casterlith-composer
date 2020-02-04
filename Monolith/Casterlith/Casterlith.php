@@ -31,6 +31,8 @@ class Casterlith
 	protected $configuration = null;
 
 	/**
+	 * Constructor
+	 * 
 	 * @param  array  $params                                     [The database connection parameters]
 	 * @param  Monolith\Casterlith\Configuration  $configuration  [The configuration to use]
 	 * @param  Doctrine\Common\EventManager  $eventManager        [The event manager to use]
@@ -48,6 +50,14 @@ class Casterlith
 	}
 
 	/**
+	 * Instantiate a specific composer
+	 * 
+	 * With a provided Composer's class name this method returns a new instance of this composer.
+	 * A composer is used to get a Casterlith Query Builder.
+	 * ```php
+	 * $trackComposer  = $orm->getComposer('Acme\Composers\Track');
+	 * ```
+	 * 
 	 * @param  string $className
 	 * @return Monolith\Casterlith\Composer\ComposerInterface
 	 * @throws Exception
@@ -64,9 +74,11 @@ class Casterlith
 	}
 
 	/**
+	 * Create a DBAL's query builder
+	 * 
 	 * @return Doctrine\DBAL\Query\QueryBuilder
 	 */
-	public function getQueryBuilder()
+	public function getDBALQueryBuilder()
 	{
 		$queryBuilder = $this->connection->createQueryBuilder();
 
@@ -74,6 +86,8 @@ class Casterlith
 	}
 
 	/**
+	 * Get current DBAL's connection
+	 * 
 	 * @return Doctrine\DBAL\Connection
 	 */
 	public function getDBALConnection()
@@ -82,6 +96,8 @@ class Casterlith
 	}
 
 	/**
+	 * Get current PDO's connection
+	 * 
 	 * @return PDO
 	 */
 	public function getPDOConnection()

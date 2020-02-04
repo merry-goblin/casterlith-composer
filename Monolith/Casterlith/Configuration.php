@@ -16,6 +16,8 @@ namespace Monolith\Casterlith;
 class Configuration extends \Doctrine\DBAL\Configuration
 {
 	/**
+	 * Setter for replacer parameter
+	 * 
 	 * Set the replacer to use when building aliases in selection
 	 *
 	 * @param  string  $replacer
@@ -33,6 +35,8 @@ class Configuration extends \Doctrine\DBAL\Configuration
 	}
 
 	/**
+	 * Getter for replacer parameter
+	 * 
 	 * Get the replacer to use when building aliases in selection
 	 *
 	 * @return string
@@ -43,6 +47,8 @@ class Configuration extends \Doctrine\DBAL\Configuration
 	}
 
 	/**
+	 * Setter for firstAutoSelection parameter
+	 * 
 	 * When 'first' method is called on a composer automatically force only one result
 	 * 2 sql requests will be used to get a result if true but no useless data will be retrieve.
 	 * To prevent the 2 sql requests to be called, set to false and make sure that your request 
@@ -57,6 +63,8 @@ class Configuration extends \Doctrine\DBAL\Configuration
 	}
 
 	/**
+	 * Getter for firstAutoSelection parameter
+	 * 
 	 * Get the replacer to use when building aliases in selection
 	 *
 	 * @return string
@@ -67,6 +75,8 @@ class Configuration extends \Doctrine\DBAL\Configuration
 	}
 
 	/**
+	 * Setter for exceptionMultipleResultOnFirst parameter
+	 *
 	 * When firstAutoSelection is false you will get an exception is first send back more 
 	 * than one result. It is better to not use this configuration at true on a production
 	 * environment.
@@ -81,6 +91,8 @@ class Configuration extends \Doctrine\DBAL\Configuration
 	}
 
 	/**
+	 * Getter for exceptionMultipleResultOnFirst parameter
+	 * 
 	 * Get the replacer to use when building aliases in selection
 	 *
 	 * @return string
