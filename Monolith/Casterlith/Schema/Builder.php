@@ -337,7 +337,8 @@ class Builder
 				$fromEntity->$property = array();
 			}
 			if (!is_null($toEntity)) {
-				$fromEntity->{$property}[$toEntity->getPrimaryValue()] = $toEntity;
+				$primaryKey = $this->mapperList[$joint->toAlias]->getPrimaryKey();
+				$fromEntity->{$property}[$toEntity->$primaryKey] = $toEntity;
 			}
 		}
 	}
