@@ -786,4 +786,12 @@ abstract class AbstractComposer
 	{
 		return $this->queryBuilder->getSQL();
 	}
+
+	/**
+	 * @return \Doctrine\DBAL\Query\Expression\ExpressionBuilder
+	 */
+	public function expr()
+	{
+		return $this->getDBALConnection()->getExpressionBuilder();
+	}
 }
