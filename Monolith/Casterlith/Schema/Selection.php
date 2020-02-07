@@ -14,6 +14,7 @@ class Selection
 	public $replacer           = null;
 	public $relations          = null;
 	public $primaryKey         = null;
+	public $realPrimaryKey     = null;
 	public $replacedPrimaryKey = null;
 	public $loaded             = null;
 

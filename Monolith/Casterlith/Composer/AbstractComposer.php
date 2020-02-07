@@ -374,6 +374,8 @@ abstract class AbstractComposer
 				'values',
 			));
 
+		$condition = $this->schemaBuilder->getReplacedFieldsOfAnyEntity($condition);
+
 		$this->queryBuilder
 			->where($condition);
 
@@ -389,6 +391,8 @@ abstract class AbstractComposer
 	 */
 	public function andWhere($condition)
 	{
+		$condition = $this->schemaBuilder->getReplacedFieldsOfAnyEntity($condition);
+
 		$this->queryBuilder
 			->andWhere($condition);
 
@@ -404,6 +408,8 @@ abstract class AbstractComposer
 	 */
 	public function orWhere($condition)
 	{
+		$condition = $this->schemaBuilder->getReplacedFieldsOfAnyEntity($condition);
+
 		$this->queryBuilder
 			->orWhere($condition);
 
@@ -431,6 +437,8 @@ abstract class AbstractComposer
 			'having',
 		));
 
+		$groupBy = $this->schemaBuilder->getReplacedFieldsOfAnyEntity($groupBy);
+
 		$this->queryBuilder
 			->groupBy($groupBy);
 
@@ -447,6 +455,8 @@ abstract class AbstractComposer
 		if (count($args) == 0) {
 			throw new \Exception("At least one groupBy is needed");
 		}
+
+		$groupBy = $this->schemaBuilder->getReplacedFieldsOfAnyEntity($groupBy);
 
 		$this->queryBuilder
 			->addGroupBy($groupBy);
@@ -472,6 +482,8 @@ abstract class AbstractComposer
 			'having',
 		));
 
+		$having = $this->schemaBuilder->getReplacedFieldsOfAnyEntity($having);
+
 		$this->queryBuilder
 			->having($having);
 
@@ -488,6 +500,8 @@ abstract class AbstractComposer
 		if (count($args) == 0) {
 			throw new \Exception("At least one having is needed");
 		}
+
+		$having = $this->schemaBuilder->getReplacedFieldsOfAnyEntity($having);
 
 		$this->queryBuilder
 			->andHaving($having);
@@ -506,6 +520,8 @@ abstract class AbstractComposer
 			throw new \Exception("At least one having is needed");
 		}
 
+		$having = $this->schemaBuilder->getReplacedFieldsOfAnyEntity($having);
+
 		$this->queryBuilder
 			->orHaving($having);
 
@@ -522,6 +538,8 @@ abstract class AbstractComposer
 	 */
 	public function order($sort, $order = null)
 	{
+		$order = $this->schemaBuilder->getReplacedFieldsOfAnyEntity($order);
+
 		$this->queryBuilder->orderBy($sort, $order);
 
 		return $this;
@@ -536,6 +554,8 @@ abstract class AbstractComposer
 	 */
 	public function addOrder($sort, $order = null)
 	{
+		$order = $this->schemaBuilder->getReplacedFieldsOfAnyEntity($order);
+
 		$this->queryBuilder->addOrderBy($sort, $order);
 
 		return $this;
@@ -581,25 +601,27 @@ abstract class AbstractComposer
 		$primaryKey  = $mapperClass::getPrimaryKey();
 
 		//	Clone current dbal's request
+		$selection         = "`".$alias."`.`".$primaryKey."`";
+		$replacedSelection = $this->schemaBuilder->getReplacedFieldOfEntity($alias, $selection);
 		$limitQueryBuilder = clone($this->queryBuilder);
 		$limitQueryBuilder
-			->select("distinct(".$alias.".".$primaryKey.")")
+			->select("distinct(".$replacedSelection.")")
 			->setFirstResult($first)
 			->setMaxResults($max);
 
 		//	Get id list in the the range
 		$idList = "";
-		$statement  = $limitQueryBuilder->execute();
-		while ($row = $statement->fetch()) {
+		$statement = $limitQueryBuilder->execute();
+		while ($id = $statement->fetchColumn()) {
 			if (!empty($idList)) {
 				$idList .= ",";
 			}
-			$idList .= $row[$primaryKey];
+			$idList .= $id;
 		}
 
 		//	Build a condition to limit the full dbal request
 		if (!empty($idList)) {
-			$condition  = $alias.".".$primaryKey." IN (".$idList.")";
+			$condition  = $replacedSelection." IN (".$idList.")";
 			$this->queryBuilder->andWhere($condition);
 		}
 

@@ -121,9 +121,52 @@ class Builder
 
 		//	Response for DBal's queryBuilder
 		$table       = $toMapper->getTable();
-		$condition   = $fromRelation->getCondition($fromAlias, $toAlias);
+		$condition   = $this->getReplacedJoinCondition($fromAlias, $toAlias, $fromRelation);
 
 		return array($table, $condition);
+	}
+
+	private function getReplacedJoinCondition($fromAlias, $toAlias, $fromRelation)
+	{
+		$condition = $fromRelation->getCondition($fromAlias, $toAlias);
+
+		$condition = $this->getReplacedFieldOfEntity($fromAlias, $condition);
+		$condition = $this->getReplacedFieldOfEntity($toAlias, $condition);
+
+		return $condition;
+	}
+
+	public function getReplacedFieldOfEntity($alias, $literal)
+	{
+		$mapper = $this->mapperList[$alias];
+
+		$pattern = "#`?".$alias."`?\.`?([0-9,a-z,A-Z$\_]+)`?#";
+		$matches = array();
+		$result = preg_match_all($pattern, $literal, $matches, PREG_SET_ORDER);
+		if ($result >= 0) {
+
+			$fields = $mapper->getFields();
+			foreach ($matches as $match) {
+				$aliasAndField = $match[0];
+				$fieldName     = $match[1];
+				if (isset($fields[$fieldName])) {
+					$replacedAliasAndField = "`".$alias."`.`".$fields[$fieldName]['name']."`";
+					$limit = 1;
+					$literal = preg_replace("#".$aliasAndField."#", $replacedAliasAndField, $literal, $limit);
+				}
+			}
+		}
+
+		return $literal;
+	}
+
+	public function getReplacedFieldsOfAnyEntity($literal)
+	{
+		foreach ($this->mapperList as $alias => $mapper) {
+			$literal = $this->getReplacedFieldOfEntity($alias, $literal);
+		}
+
+		return $literal;
 	}
 
 	/**
@@ -146,7 +189,7 @@ class Builder
 			if (!empty($selection)) {
 				$selection .= ",";
 			}
-			$selection .= $alias.".".$key." as ".$replacer.$key;
+			$selection .= $alias.".".$field['name']." as ".$replacer.$field['name'];
 		}
 
 		return $selection;
@@ -425,8 +468,13 @@ class Builder
 
 				$replacer  = $selection->replacer;
 
-				$selection->primaryKey          = $this->getMapper($alias)->getPrimaryKey();
-				$selection->replacedPrimaryKey  = $replacer.$selection->primaryKey;
+				//	No need to call getMapper method because we are in the selection
+				$mapper = $this->mapperList[$alias];
+				$fields = $mapper->getFields();
+
+				$selection->primaryKey          = $mapper->getPrimaryKey();
+				$selection->realPrimaryKey      = $fields[$selection->primaryKey]['name'];
+				$selection->replacedPrimaryKey  = $replacer.$selection->realPrimaryKey;
 			}
 		}
 
@@ -497,7 +545,7 @@ class Builder
 
 		$fields = $mapper->getFields();
 		foreach ($fields as $key => $field) {
-			$value = $row[$replacer.$key];
+			$value = $row[$replacer.$field['name']];
 			$value = $this->connection->convertToPHPValue($value, $field['type']); // cast
 			$entity->$key = $value;
 		}

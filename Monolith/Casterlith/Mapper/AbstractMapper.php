@@ -48,6 +48,8 @@ use Doctrine\DBAL\Query\QueryBuilder;
  */
 abstract class AbstractMapper
 {
+	static protected $init = false;
+
 	/**
 	 * Getter for table property
 	 * 
@@ -66,6 +68,36 @@ abstract class AbstractMapper
 	public function getEntity()
 	{
 		return $this::$entity;
+	}
+
+	/**
+	 * @return array
+	 */
+	final public static function getFields()
+	{
+		static::initFields();
+		return static::$fields;
+	}
+
+	/**
+	 * @return null
+	 */
+	static private function initFields()
+	{
+		static::completeFieldName();
+	}
+
+	/**
+	 * @return null
+	 */
+	static private function completeFieldName()
+	{
+		foreach (static::$fields as $key => $field) {
+			if (!isset($field['name'])) {
+				$field['name'] = $key;
+				static::$fields[$key] = $field;
+			}
+		}
 	}
 
 	/**
