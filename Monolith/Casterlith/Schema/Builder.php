@@ -140,7 +140,7 @@ class Builder
 	{
 		$mapper = $this->mapperList[$alias];
 
-		$pattern = "#`?".$alias."`?\.`?([0-9,a-z,A-Z$\_]+)`?#";
+		$pattern = "#`?".$alias."`?\.`?([0-9a-zA-Z$\_]+)`?#";
 		$matches = array();
 		$result = preg_match_all($pattern, $literal, $matches, PREG_SET_ORDER);
 		if ($result >= 0) {
@@ -217,6 +217,8 @@ class Builder
 			}
 			$selection .= $alias.".".$key." as ".$replacer.$key;
 		}*/
+
+		$rawSelection = $this->getReplacedFieldsOfAnyEntity($rawSelection);
 
 		return $rawSelection;
 	}

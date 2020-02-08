@@ -538,7 +538,7 @@ abstract class AbstractComposer
 	 */
 	public function order($sort, $order = null)
 	{
-		$order = $this->schemaBuilder->getReplacedFieldsOfAnyEntity($order);
+		$sort = $this->schemaBuilder->getReplacedFieldsOfAnyEntity($sort);
 
 		$this->queryBuilder->orderBy($sort, $order);
 
@@ -554,7 +554,7 @@ abstract class AbstractComposer
 	 */
 	public function addOrder($sort, $order = null)
 	{
-		$order = $this->schemaBuilder->getReplacedFieldsOfAnyEntity($order);
+		$sort = $this->schemaBuilder->getReplacedFieldsOfAnyEntity($sort);
 
 		$this->queryBuilder->addOrderBy($sort, $order);
 
@@ -764,6 +764,7 @@ abstract class AbstractComposer
 	{
 		foreach ($this->yetToSelectAsRawList as $key => $rawSelection) {
 			$selection = $this->schemaBuilder->getAUniqueSelectionFromRaw($rawSelection);
+			
 			$this->queryBuilder->addSelect($selection);
 			unset($this->yetToSelectAsRawList[$key]);
 		}
