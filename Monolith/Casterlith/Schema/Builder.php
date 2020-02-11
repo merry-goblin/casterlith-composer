@@ -555,4 +555,96 @@ class Builder
 		$this->selectionList[$alias]->loaded[$primaryValue] = $entity;
 	}
 
+	/**
+	 * @param  Monolith\Casterlith\Mapper\MapperInterface $mapper
+	 * @param  Monolith\Casterlith\Entity\EntityInterface $entity
+	 * @return array[array[string], array[mixed], array[string]]
+	 */
+	public function insert(MapperInterface $mapper, $entity)
+	{
+		$fields = $mapper->getFields();
+		$keys       = array();
+		$values     = array();
+		$valueTypes = array();
+
+		foreach ($fields as $key => $field) {
+			$replacedKey         = $field['name'];
+			$keys[$replacedKey]  = '?';
+			$values[]            = $entity->{$key};
+		}
+
+		return array(
+			$keys,
+			$values,
+			$valueTypes,
+		);
+	}
+
+	/**
+	 * @param  Monolith\Casterlith\Mapper\MapperInterface $mapper
+	 * @param  Monolith\Casterlith\Entity\EntityInterface $entity
+	 * @param  array $fieldsToUpdate
+	 * @return array[array[string], array[mixed], array[string]]
+	 */
+	public function update(MapperInterface $mapper, $entity, $fieldsToUpdate)
+	{
+		$fields = $mapper->getFields();
+		$keys       = array();
+		$values     = array();
+		$valueTypes = array();
+
+		foreach ($fieldsToUpdate as $key) {
+			$field               = $fields[$key];
+			$replacedKey         = $field['name'];
+			$keys[$replacedKey]  = '?';
+			$values[]            = $entity->{$key};
+		}
+
+		return array(
+			$keys,
+			$values,
+			$valueTypes,
+		);
+	}
+
+	function updateConditionOnEntityPrimaryKey($mapper, $entity)
+	{
+		$condition = "`".$mapper->getTable()."`.`".$this->getRealPrimaryKey($mapper)."` = ? ";
+		$value     = $this->getPrimaryValue($mapper, $entity);
+		$valueType = null;
+
+		return array(
+			$condition,
+			$value,
+			$valueType,
+		);
+	}
+
+	/**
+	 * @param Monolith\Casterlith\Mapper\MapperInterface
+	 * @param Monolith\Casterlith\Entity\EntityInterface
+	 * @return mixed
+	 */
+	private function getRealPrimaryKey($mapper)
+	{
+		$fields     = $mapper->getFields();
+		$primaryKey = $mapper->getPrimaryKey();
+
+		$realPrimaryKey = $fields[$primaryKey]['name'];
+
+		return $realPrimaryKey;
+	}
+
+	/**
+	 * @param Monolith\Casterlith\Mapper\MapperInterface
+	 * @param Monolith\Casterlith\Entity\EntityInterface
+	 * @return mixed
+	 */
+	private function getPrimaryValue($mapper, $entity)
+	{
+		$primaryKey = $mapper->getPrimaryKey();
+		$primaryValue = $entity->{$primaryKey};
+
+		return $primaryValue;
+	}
 }

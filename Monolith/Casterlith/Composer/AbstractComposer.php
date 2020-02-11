@@ -12,6 +12,7 @@ use Doctrine\DBAL\Query\QueryBuilder;
 use Monolith\Casterlith\Schema\Builder as SchemaBuilder;
 use Monolith\Casterlith\Mapper\MapperInterface;
 use Monolith\Casterlith\Configuration;
+use Monolith\Casterlith\Entity\EntityInterface;
 
 /**
  * Abstract class for a Composer
@@ -61,6 +62,9 @@ abstract class AbstractComposer
 
 	/** @var boolean */
 	protected $isRaw = false;
+
+	/** @var boolean */
+	protected $isExecutable = false;
 
 	/** @var string */
 	protected $selectionReplacer = null;
@@ -739,6 +743,9 @@ abstract class AbstractComposer
 		$this->schemaBuilder         = new SchemaBuilder($this->queryBuilder, $this->selectionReplacer);
 		$this->yetToSelectList       = array();
 		$this->yetToSelectAsRawList  = array();
+
+		$this->isRaw = false;
+		$this->isExecutable = false;
 	}
 
 	/**
@@ -768,6 +775,92 @@ abstract class AbstractComposer
 			$this->queryBuilder->addSelect($selection);
 			unset($this->yetToSelectAsRawList[$key]);
 		}
+	}
+
+	/**
+	 * Inserts an entity in database
+	 * 
+	 * @param  Monolith/Casterlith/Composer/EntityInterface $entity
+	 * @return Monolith\Casterlith\Composer\ComposerInterface
+	 */
+	public function insert(EntityInterface $entity) 
+	{
+		$this->reset();
+		$this->isExecutable = true;
+
+		$givenClassName    = get_class($entity);
+		$expectedClassName = $this->getMapper()->getEntity();
+
+		if ($givenClassName != $expectedClassName) {
+			throw new \Exception("Entity in parameter isn't linked to this query composer");
+		}
+
+		list($keys, $values, $valueTypes) = $this->schemaBuilder->insert($this->getMapper(), $entity);
+
+		$this->queryBuilder
+			->insert($this->mapper->getTable())
+			->values($keys)
+			->setParameters($values, $valueTypes)
+		;
+
+		return $this;
+	}
+
+	/**
+	 * Update an entity in database
+	 * 
+	 * @param  Monolith/Casterlith/Composer/EntityInterface $entity
+	 * @param  array   $fieldsToUpdate
+	 * @param  boolean $autoWhereWithPrimaryKey
+	 * @return Monolith\Casterlith\Composer\ComposerInterface
+	 */
+	public function update(EntityInterface $entity, $fieldsToUpdate, $autoWhereWithPrimaryKey = false, $literals = null) 
+	{
+		$this->reset();
+		$this->isExecutable = true;
+
+		$givenClassName    = get_class($entity);
+		$expectedClassName = $this->getMapper()->getEntity();
+
+		if ($givenClassName != $expectedClassName) {
+			throw new \Exception("Entity in parameter isn't linked to this query composer");
+		}
+
+		list($keys, $values, $valueTypes) = $this->schemaBuilder->update($this->getMapper(), $entity, $fieldsToUpdate);
+
+		$this->queryBuilder->update($this->mapper->getTable());
+		foreach ($keys as $key => $value) {
+			$this->queryBuilder->set($key, $value);
+		}
+		//	Applies automatically a where on the entity's primary key
+		if ($autoWhereWithPrimaryKey) {
+
+			list($condition, $value, $valueType) = $this->schemaBuilder->updateConditionOnEntityPrimaryKey($this->getMapper(), $entity);
+			$values[] = $value;
+
+			$this->queryBuilder
+				->where($condition)
+			;
+		}
+
+		$this->queryBuilder->setParameters($values, $valueTypes);
+
+		return $this;
+	}
+
+	/**
+	 * @return boolean
+	 * @throws Exception $e
+	 */
+	public function execute()
+	{
+		if (!$this->isExecutable) {
+			throw new \Exception("Execute method can be called only after insert, update or delete methods");
+		}
+
+		$response = $this->queryBuilder->execute();
+
+		return $response;
 	}
 
 	/**
