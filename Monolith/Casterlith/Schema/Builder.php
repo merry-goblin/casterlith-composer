@@ -140,7 +140,7 @@ class Builder
 	{
 		$mapper = $this->mapperList[$alias];
 
-		$pattern = "#`?".$alias."`?\.`?([0-9a-zA-Z$\_]+)`?#";
+		$pattern = "#`?\b".$alias."\b`?\.`?\b([0-9a-zA-Z$\_]+)\b`?#";
 		$matches = array();
 		$result = preg_match_all($pattern, $literal, $matches, PREG_SET_ORDER);
 		if ($result >= 0) {
