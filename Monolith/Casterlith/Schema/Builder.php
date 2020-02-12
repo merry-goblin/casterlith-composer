@@ -584,9 +584,10 @@ class Builder
 	 * @param  Monolith\Casterlith\Mapper\MapperInterface $mapper
 	 * @param  Monolith\Casterlith\Entity\EntityInterface $entity
 	 * @param  array $fieldsToUpdate
+	 * @param  array $literals
 	 * @return array[array[string], array[mixed], array[string]]
 	 */
-	public function update(MapperInterface $mapper, $entity, $fieldsToUpdate)
+	public function update(MapperInterface $mapper, $entity, $fieldsToUpdate, $literals)
 	{
 		$fields = $mapper->getFields();
 		$keys       = array();
@@ -608,6 +609,19 @@ class Builder
 	}
 
 	function updateConditionOnEntityPrimaryKey($mapper, $entity)
+	{
+		$condition = "`".$mapper->getTable()."`.`".$this->getRealPrimaryKey($mapper)."` = ? ";
+		$value     = $this->getPrimaryValue($mapper, $entity);
+		$valueType = null;
+
+		return array(
+			$condition,
+			$value,
+			$valueType,
+		);
+	}
+
+	function deleteConditionOnEntityPrimaryKey($mapper, $entity)
 	{
 		$condition = "`".$mapper->getTable()."`.`".$this->getRealPrimaryKey($mapper)."` = ? ";
 		$value     = $this->getPrimaryValue($mapper, $entity);

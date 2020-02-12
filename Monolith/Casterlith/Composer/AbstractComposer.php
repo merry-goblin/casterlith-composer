@@ -782,21 +782,20 @@ abstract class AbstractComposer
 	 * 
 	 * @param  Monolith/Casterlith/Composer/EntityInterface $entity
 	 * @return Monolith\Casterlith\Composer\ComposerInterface
+	 * @throws Exception
 	 */
 	public function insert(EntityInterface $entity) 
 	{
 		$this->reset();
 		$this->isExecutable = true;
 
-		$givenClassName    = get_class($entity);
-		$expectedClassName = $this->getMapper()->getEntity();
+		//	Does entity can be inserted by this query composer
+		$this->canHandleEntity($entity);
 
-		if ($givenClassName != $expectedClassName) {
-			throw new \Exception("Entity in parameter isn't linked to this query composer");
-		}
-
+		//	Keys and values to insert
 		list($keys, $values, $valueTypes) = $this->schemaBuilder->insert($this->getMapper(), $entity);
 
+		//	DBal insert method
 		$this->queryBuilder
 			->insert($this->mapper->getTable())
 			->values($keys)
@@ -810,40 +809,69 @@ abstract class AbstractComposer
 	 * Update an entity in database
 	 * 
 	 * @param  Monolith/Casterlith/Composer/EntityInterface $entity
-	 * @param  array   $fieldsToUpdate
-	 * @param  boolean $autoWhereWithPrimaryKey
+	 * @param  array  $fieldsToUpdate
+	 * @param  array  $literals
 	 * @return Monolith\Casterlith\Composer\ComposerInterface
+	 * @throws Exception
 	 */
-	public function update(EntityInterface $entity, $fieldsToUpdate, $autoWhereWithPrimaryKey = false, $literals = null) 
+	public function update(EntityInterface $entity, $fieldsToUpdate, $literals = null) 
 	{
 		$this->reset();
 		$this->isExecutable = true;
 
-		$givenClassName    = get_class($entity);
-		$expectedClassName = $this->getMapper()->getEntity();
+		//	Does entity can be updated by this query composer
+		$this->canHandleEntity($entity);
 
-		if ($givenClassName != $expectedClassName) {
-			throw new \Exception("Entity in parameter isn't linked to this query composer");
-		}
-
-		list($keys, $values, $valueTypes) = $this->schemaBuilder->update($this->getMapper(), $entity, $fieldsToUpdate);
-
+		//	DBal update method
 		$this->queryBuilder->update($this->mapper->getTable());
+
+		//	Keys and values to update
+		list($keys, $values, $valueTypes) = $this->schemaBuilder->update($this->getMapper(), $entity, $fieldsToUpdate, $literals);
 		foreach ($keys as $key => $value) {
 			$this->queryBuilder->set($key, $value);
 		}
+
 		//	Applies automatically a where on the entity's primary key
-		if ($autoWhereWithPrimaryKey) {
+		list($condition, $value, $valueType) = $this->schemaBuilder->updateConditionOnEntityPrimaryKey($this->getMapper(), $entity);
+		$values[] = $value;
+		$this->queryBuilder
+			->where($condition)
+		;
 
-			list($condition, $value, $valueType) = $this->schemaBuilder->updateConditionOnEntityPrimaryKey($this->getMapper(), $entity);
-			$values[] = $value;
-
-			$this->queryBuilder
-				->where($condition)
-			;
-		}
-
+		//	Parameters
 		$this->queryBuilder->setParameters($values, $valueTypes);
+
+		return $this;
+	}
+
+	/**
+	 * Delete an entity in database
+	 * 
+	 * @param  Monolith/Casterlith/Composer/EntityInterface $entity
+	 * @param  array   $fieldsToUpdate
+	 * @return Monolith\Casterlith\Composer\ComposerInterface
+	 * @throws Exception
+	 */
+	public function delete(EntityInterface $entity) 
+	{
+		$this->reset();
+		$this->isExecutable = true;
+
+		//	Does entity can be deleted by this query composer
+		$this->canHandleEntity($entity);
+
+		//	DBal delete method
+		$this->queryBuilder->delete($this->mapper->getTable());
+
+		//	Applies automatically a where on the entity's primary key
+		list($condition, $value, $valueType) = $this->schemaBuilder->deleteConditionOnEntityPrimaryKey($this->getMapper(), $entity);
+		$values[] = $value;
+		$this->queryBuilder
+			->where($condition)
+		;
+
+		//	Parameters
+		$this->queryBuilder->setParameters($values);
 
 		return $this;
 	}
@@ -861,6 +889,21 @@ abstract class AbstractComposer
 		$response = $this->queryBuilder->execute();
 
 		return $response;
+	}
+
+	/**
+	 * @param Monolith\Casterlith\Entity\EntityInterface
+	 * @return null
+	 * @throws Exception
+	 */
+	protected function canHandleEntity($entity)
+	{
+		$givenClassName    = get_class($entity);
+		$expectedClassName = $this->getMapper()->getEntity();
+
+		if ($givenClassName != $expectedClassName) {
+			throw new \Exception("Entity in parameter isn't linked to this query composer");
+		}
 	}
 
 	/**
