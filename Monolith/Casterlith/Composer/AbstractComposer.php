@@ -678,7 +678,7 @@ abstract class AbstractComposer
 	 * 
 	 * @return Monolith\Casterlith\Entity\EntityInterface
 	 */
-	private function firstEntities()
+	protected function firstEntities()
 	{
 		$this->finishSelection();
 
@@ -700,7 +700,7 @@ abstract class AbstractComposer
 	 * 
 	 * @return Monolith\Casterlith\Entity\EntityInterface
 	 */
-	private function firstRawSelections()
+	protected function firstRawSelections()
 	{
 		$this->finishRawSelection();
 
@@ -712,7 +712,7 @@ abstract class AbstractComposer
 		return $row;
 	}
 
-	private function allEntities()
+	protected function allEntities()
 	{
 		$this->finishSelection();
 
@@ -723,7 +723,7 @@ abstract class AbstractComposer
 		return $entities;
 	}
 
-	private function allRawSelections()
+	protected function allRawSelections()
 	{
 		$this->finishRawSelection();
 
@@ -801,6 +801,13 @@ abstract class AbstractComposer
 			->values($keys)
 			->setParameters($values, $valueTypes)
 		;
+
+		//	Execute
+		$this->execute();
+
+		//	Last insert id
+		$id = (int) $this->getDBALConnection()->lastInsertId();
+		$this->schemaBuilder->applyPrimaryValue($this->mapper, $entity, $id);
 
 		return $this;
 	}

@@ -661,4 +661,18 @@ class Builder
 
 		return $primaryValue;
 	}
+
+	/**
+	 * @param Monolith\Casterlith\Mapper\MapperInterface
+	 * @param Monolith\Casterlith\Entity\EntityInterface
+	 * @param integer
+	 * @return null
+	 */
+	public function applyPrimaryValue($mapper, $entity, $primaryValue)
+	{
+		$primaryKey = $mapper->getPrimaryKey();
+		$entity->{$primaryKey} = $primaryValue;
+
+		return null;
+	}
 }
