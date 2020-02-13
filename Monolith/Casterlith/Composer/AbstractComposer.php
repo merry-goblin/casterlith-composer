@@ -899,6 +899,30 @@ abstract class AbstractComposer
 	}
 
 	/**
+	 * @return null
+	 */
+	public function beginTransaction()
+	{
+		$this->getDBALConnection()->beginTransaction();
+	}
+
+	/**
+	 * @return null
+	 */
+	public function commit()
+	{
+		$this->getDBALConnection()->commit();
+	}
+
+	/**
+	 * @return null
+	 */
+	public function rollback()
+	{
+		$this->getDBALConnection()->rollback();
+	}
+
+	/**
 	 * @param Monolith\Casterlith\Entity\EntityInterface
 	 * @return null
 	 * @throws Exception
