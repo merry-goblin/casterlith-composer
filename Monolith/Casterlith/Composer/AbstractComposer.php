@@ -641,7 +641,7 @@ abstract class AbstractComposer
 		else {
 			if ($this->firstAutoSelection) {
 				$resultList  = $this->limit(0, 1);
-				$result      = reset($resultList);
+				$result      = (count($resultList) >= 1) ? reset($resultList) : null;
 			}
 			else {
 				$result  = $this->firstEntities();
