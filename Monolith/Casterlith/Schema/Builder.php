@@ -270,7 +270,12 @@ class Builder
 	 */
 	public function buildFirstAsRaw(/*PDOStatement*/ $statement)
 	{
-		$row = $statement->fetchAssociative();
+		if ($usePDOStatement) {
+			$row = $statement->fetch(\PDO::FETCH_ASSOC);
+		}
+		else {
+			$row = $statement->fetchAssociative();
+		}
 
 		return $row;
 	}
@@ -281,7 +286,12 @@ class Builder
 	 */
 	public function buildAllAsRaw(/*PDOStatement*/ $statement)
 	{
-		$rows = $statement->fetchAllAssociative();
+		if ($usePDOStatement) {
+			$rows = $statement->fetchAll(\PDO::FETCH_ASSOC);
+		}
+		else {
+			$rows = $statement->fetchAllAssociative();
+		}
 
 		return $rows;
 	}
