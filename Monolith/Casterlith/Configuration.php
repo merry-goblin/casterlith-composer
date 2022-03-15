@@ -30,7 +30,7 @@ class Configuration extends \Doctrine\DBAL\Configuration
 
 	public function doesPDOStatementIsUsed()
 	{
-		return $usePDOStatement;
+		return $this->usePDOStatement;
 	}
 
 	/**
