@@ -270,7 +270,7 @@ class Builder
 	 */
 	public function buildFirstAsRaw(/*PDOStatement*/ $statement)
 	{
-		$row = $statement->fetchObject();
+		$row = $statement->fetchAssociative();
 
 		return $row;
 	}
@@ -281,11 +281,7 @@ class Builder
 	 */
 	public function buildAllAsRaw(/*PDOStatement*/ $statement)
 	{
-		$rows = array();
-
-		while ($row = $statement->fetchObject()) {
-			$rows[] = $row;
-		}
+		$rows = $statement->fetchAllAssociative();
 
 		return $rows;
 	}
