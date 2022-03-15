@@ -89,7 +89,7 @@ abstract class AbstractComposer
 		$this->selectionReplacer               = $configuration->getSelectionReplacer();
 		$this->firstAutoSelection              = $configuration->getFirstAutoSelection();
 		$this->exceptionMultipleResultOnFirst  = $configuration->getExceptionMultipleResultOnFirst();
-		$this->usePDOStatement                 = $this->configuration->doesPDOStatementIsUsed();
+		$this->usePDOStatement                 = $configuration->doesPDOStatementIsUsed();
 
 		//	Neither an empty string nor null
 		if (empty($this::$mapperName)) {
@@ -739,7 +739,7 @@ abstract class AbstractComposer
 	 */
 	protected function reset()
 	{
-		$this->schemaBuilder         = new SchemaBuilder($this->queryBuilder, $this->selectionReplacer, $this->configuration->doesPDOStatementIsUsed());
+		$this->schemaBuilder         = new SchemaBuilder($this->queryBuilder, $this->selectionReplacer, $this->usePDOStatement);
 		$this->yetToSelectList       = array();
 		$this->yetToSelectAsRawList  = array();
 	}
