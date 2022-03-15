@@ -23,7 +23,7 @@ class Configuration extends \Doctrine\DBAL\Configuration
 
 	public function initVersion()
 	{
-		if (Version::compare('3.0.0') === -1) {
+		if (Version::compare('3.0.0') === 1) {
 			$this->usePDOStatement = true;
 		}
 	}
