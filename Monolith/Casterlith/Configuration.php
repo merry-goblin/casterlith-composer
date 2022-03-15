@@ -8,6 +8,8 @@
 
 namespace Monolith\Casterlith;
 
+use Doctrine\DBAL\Version;
+
 /**
  * Casterlith configuration
  * 
@@ -15,6 +17,22 @@ namespace Monolith\Casterlith;
  */
 class Configuration extends \Doctrine\DBAL\Configuration
 {
+	//	Monolith\Casterlith\Schema\Builder gets PDOStatement or Result according to DBAL version. 
+	//	Methods for those two class are not ISO
+	protected $usePDOStatement = false;
+
+	public function initVersion()
+	{
+		if (Version::compare('3.0.0') === -1) {
+			$this->usePDOStatement = true;
+		}
+	}
+
+	public function doesPDOStatementIsUsed()
+	{
+		return $usePDOStatement;
+	}
+
 	/**
 	 * Setter for replacer parameter
 	 * 

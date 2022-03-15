@@ -42,6 +42,8 @@ class Casterlith
 	 */
 	public function __construct(array $params, Configuration $configuration, EventManager $eventManager = null)
 	{
+		$configuration->initVersion(); // Retro compatibility according to dbal version
+
 		$this->connection = DriverManager::getConnection($params, $configuration, $eventManager);
 
 		$this->configuration = $configuration;
