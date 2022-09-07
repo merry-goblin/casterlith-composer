@@ -623,12 +623,14 @@ abstract class AbstractComposer
 		}
 
 		//	Build a condition to limit the full dbal request
+		$resultList = []; // If no id found we prevent the request to be launched
 		if (!empty($idList)) {
 			$condition  = $replacedSelection." IN (".$idList.")";
 			$this->queryBuilder->andWhere($condition);
+			$resultList = $this->all();
 		}
 
-		return $this->all();
+		return $resultList;
 	}
 
 	/**
